@@ -33,9 +33,76 @@ const initialState: UsersState = {
 /* -------------------- Thunks -------------------- */
 
 // Server-side paginated list with optional sorting and filtering
+// export const listUsers = createAsyncThunk<
+//   { users: UserType[]; total: number; lastVisible: any; page: number; pageSize: number },
+//   { page?: number; limit?: number; sortField?: string; sortOrder?: "asc" | "desc"; searchField?: string; searchValue?: string } | undefined
+// >(
+//   "users/list",
+//   async (params, { rejectWithValue }) => {
+//     try {
+//       const page = params?.page ?? 1;
+//       const pageSize = params?.limit ?? 10;
+//       const sortField = params?.sortField ?? "createdAt";
+//       const sortOrder = params?.sortOrder ?? "asc";
+//       const searchField = params?.searchField;
+//       const searchValue = params?.searchValue;
+
+//       const res = await userService.getUsersPaginated({
+//         pageSize,
+//         sortField,
+//         sortOrder,
+//         filterField: searchField,
+//         filterValue: searchValue,
+//       });
+
+//       // Map Firestore docs to UserType
+//       const mapUser = (u: any): UserType => ({
+//         userId: u.id,
+//         apartmentId: u.apartmentId,
+//         createdBy: u.createdBy,
+//         displayImage: u.displayImage,
+//         email: u.email,
+//         name: u.name,
+//         phoneNumber: u.phoneNumber ?? "",
+//         role: u.role ?? "",
+//         updatedBy: u.updatedBy ?? "",
+//         createdAt: u.createdAt?.toDate?.() ?? new Date(u.createdAt ?? Date.now()),
+//         updatedAt: u.updatedAt?.toDate?.() ?? new Date(u.updatedAt ?? Date.now()),
+//       });
+
+//       const users: UserType[] = res.users.map(mapUser);
+
+//       return {
+//         users,
+//         total: users.length,
+//         lastVisible: res.lastVisible || null,
+//         page,
+//         pageSize,
+//       };
+//     } catch (err: any) {
+//       return rejectWithValue(err.message || "Failed to fetch users");
+//     }
+//   }
+// );
+
 export const listUsers = createAsyncThunk<
-  { users: UserType[]; total: number; lastVisible: any; page: number; pageSize: number },
-  { page?: number; limit?: number; sortField?: string; sortOrder?: "asc" | "desc"; searchField?: string; searchValue?: string } | undefined
+  {
+    users: UserType[];
+    total: number;
+    lastVisible: any;
+    page: number;
+    pageSize: number;
+  },
+  {
+    page?: number;
+    limit?: number;
+    sortField?: string;
+    sortOrder?: "asc" | "desc";
+    searchField?: string;
+    searchValue?: string;
+    apartmentId?: string;
+    role?: string;
+  } | undefined
 >(
   "users/list",
   async (params, { rejectWithValue }) => {
@@ -46,6 +113,8 @@ export const listUsers = createAsyncThunk<
       const sortOrder = params?.sortOrder ?? "asc";
       const searchField = params?.searchField;
       const searchValue = params?.searchValue;
+      const apartmentId = params?.apartmentId;
+      const role = params?.role;
 
       const res = await userService.getUsersPaginated({
         pageSize,
@@ -53,6 +122,8 @@ export const listUsers = createAsyncThunk<
         sortOrder,
         filterField: searchField,
         filterValue: searchValue,
+        apartmentId, // ✅ optional filter
+        role,        // ✅ optional filter
       });
 
       // Map Firestore docs to UserType
@@ -70,7 +141,11 @@ export const listUsers = createAsyncThunk<
         updatedAt: u.updatedAt?.toDate?.() ?? new Date(u.updatedAt ?? Date.now()),
       });
 
+
+
       const users: UserType[] = res.users.map(mapUser);
+
+      console.log(users.toString())
 
       return {
         users,
@@ -84,6 +159,7 @@ export const listUsers = createAsyncThunk<
     }
   }
 );
+
 
 // Create, update, delete remain same
 export const createUser = createAsyncThunk<UserType, { id: string; data: Partial<UserType> }>(

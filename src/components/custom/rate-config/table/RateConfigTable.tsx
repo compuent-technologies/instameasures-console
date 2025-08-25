@@ -1,35 +1,37 @@
-import React from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import PageWrapper from "@/components/custom/wrapper/page-wrapper";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { useAppDispatch } from "@/store"; // ✅ adjust paths as per your store
-import { fetchApartments } from "@/store/slices/apartment-slice";
+import { useAppDispatch } from "@/store";
 import { useAppSelector } from "@/store/hook";
-import { apartmentTableColumns } from "./rateConfigColumn";
-import type { Apartment } from "@/types/types";
 import CommonTableComponent from "../../common/table/common-table-component";
+import { CommonPagination } from "../../common/table/common-pagination";
+import { fetchRateConfigs } from "@/store/slices/rate-config.slice";
+import { rateConfigTableColumns } from "./rateConfigColumn";
+import type RateConfigType from "@/types/rateConfig";
 
-export default function ApartmentsTable() {
-  const [search, setSearch] = React.useState("");
+export default function RateConfigTable() {
   const dispatch = useAppDispatch();
+  const [search, setSearch] = useState("");
 
-  const { data, isLoading } = useAppSelector(
-    (state) => state.apartments // ✅ match slice key
+  const { data, total, page, pageSize, loading, error } = useAppSelector(
+    (state) => state.rateConfig
   );
 
-  React.useEffect(() => {
-    dispatch(fetchApartments());
-  }, []);
+  // Fetch rate configs on mount or when search/page/pageSize changes
+  useEffect(() => {
+    dispatch(fetchRateConfigs({ page, limit: pageSize, search }));
+  }, [dispatch, page, pageSize, search]);
 
-  const filteredApartments = (data || []).filter((apartment: Apartment) =>
-    apartment.id?.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const handleAdd = () => {
-    console.log("Add new apartment clicked");
-  };
+  const table = useReactTable<RateConfigType>({
+    data: data || [],
+    columns: rateConfigTableColumns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   const handleRefresh = () => {
-    dispatch(fetchApartments());
+    dispatch(fetchRateConfigs({ page, limit: pageSize, search }));
   };
 
   const handleExport = () => {
@@ -44,31 +46,38 @@ export default function ApartmentsTable() {
     console.log("Filter clicked");
   };
 
-
-  const table = useReactTable<Apartment>({
-    data: filteredApartments ?? [],
-    columns: apartmentTableColumns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
   return (
     <PageWrapper
-      title="Apartments"
-      subTitle="View and manage apartment records"
-      addTitle="New Apartment"
+      title="Rate Configurations"
+      subTitle="View and manage rate configuration records"
+      addTitle="New Rate Config"
       search={search}
       onSearchChange={setSearch}
-      onAddClick={handleAdd}
       onRefresh={handleRefresh}
       onExport={handleExport}
       onSortToggle={handleSort}
       onFilterClick={handleFilter}
+      loading={loading}
+      error={error}
     >
-      {!isLoading ? (
-        <CommonTableComponent table={table} columns={apartmentTableColumns} isLoading={isLoading} />
+      {!loading ? (
+        <div>
+          <CommonTableComponent
+            table={table}
+            columns={rateConfigTableColumns}
+            isLoading={loading}
+          />
+          <CommonPagination
+            page={page}
+            totalPages={Math.ceil(total / pageSize)}
+            onPageChange={(newPage) =>
+              dispatch(fetchRateConfigs({ page: newPage, limit: pageSize, search }))
+            }
+          />
+        </div>
       ) : (
         <div className="p-4 text-center text-muted-foreground">
-          Loading apartments...
+          Loading rate configs...
         </div>
       )}
     </PageWrapper>

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { fetchMeters } from "@/store/slices/meter-slice";
-
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import PageWrapper from "@/components/custom/wrapper/page-wrapper";
 import { meterTableColumns } from "./meter-table-columns";
@@ -20,18 +19,21 @@ export default function MetersTable() {
     (state) => state.meters
   );
 
+  // Fetch data when page, search, or pageSize changes
   useEffect(() => {
-    dispatch(fetchMeters());
-  }, [dispatch]);
-
-  const filteredMeters = data.filter(
-    (meter: MeterType) =>
-      meter.meterId?.toLowerCase().includes(search.toLowerCase()) ||
-      meter.phoneNumber?.includes(search)
-  );
+    dispatch(
+      fetchMeters({
+        page,
+        limit: pageSize,
+        search,
+        sortField: "createdAt",
+        sortOrder: "asc",
+      })
+    );
+  }, [dispatch, page, pageSize, search]);
 
   const table = useReactTable<MeterType>({
-    data: filteredMeters || [],
+    data: data || [],
     columns: meterTableColumns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -40,11 +42,12 @@ export default function MetersTable() {
     <PageWrapper
       title="Meters"
       subTitle="View and manage meters records"
-      addTitle="New Apartment"
+      addTitle="New Meter"
       search={search}
       onSearchChange={setSearch}
-      onAddClick={() => console.log("Add new apartment clicked")}
-      onRefresh={() => dispatch(fetchMeters())}
+      onRefresh={() =>
+        dispatch(fetchMeters({ page, limit: pageSize, search }))
+      }
       onExport={() => console.log("Export clicked")}
       onSortToggle={() => console.log("Sort toggled")}
       onFilterClick={() => console.log("Filter clicked")}
@@ -58,7 +61,13 @@ export default function MetersTable() {
             columns={meterTableColumns}
             isLoading={loading}
           />
-          <CommonPagination page={page} totalPages={total} onPageChange={() => {}} />
+          <CommonPagination
+            page={page}
+            totalPages={Math.ceil(total / pageSize)}
+            onPageChange={(newPage) =>
+              dispatch(fetchMeters({ page: newPage, limit: pageSize, search }))
+            }
+          />
         </div>
       ) : (
         <div className="p-4 text-center text-muted-foreground">

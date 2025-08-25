@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import * as billService from "@/firebase/firestore/bills";
-import type { Bill } from "@/types/types";
+import type { Bill } from "@/types";
 
 // --- State Interface ---
 interface BillsState {

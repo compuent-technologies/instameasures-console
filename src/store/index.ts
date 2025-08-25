@@ -5,14 +5,18 @@ import userReducer from "./slices/user-slice";
 import meterReducer from "./slices/meter-slice";
 import apartmentReducer from "./slices/apartment-slice";
 import billReducer from "./slices/bill-slice";
+import ticketReducer from "./slices/ticket.slice";
+import rateConfigReducer from "./slices/rate-config.slice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
-    user: userReducer,
+    users: userReducer,
     meters: meterReducer,
     apartments: apartmentReducer,
     bills: billReducer,
+    tickets: ticketReducer,
+    rateConfig: rateConfigReducer,
   },
 });
 

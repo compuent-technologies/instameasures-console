@@ -1,6 +1,7 @@
 // firebase/auth.ts
 import {
     type User,
+    type ConfirmationResult,
     signOut,
     onAuthStateChanged,
     RecaptchaVerifier,
@@ -8,25 +9,41 @@ import {
 } from "firebase/auth";
 import { auth } from "./index";
 
-// 🔑 Initialize reCAPTCHA
+
+declare global {
+    interface Window {
+        recaptchaVerifier?: RecaptchaVerifier;
+    }
+}
+
 export const setupRecaptcha = (containerId: string) => {
-    if (!(window as any).recaptchaVerifier) {
-        (window as any).recaptchaVerifier = new RecaptchaVerifier(
+    if (!window.recaptchaVerifier) {
+        window.recaptchaVerifier = new RecaptchaVerifier(
+            auth, // ✅ pass the auth instance, not string
             containerId,
             {
-                size: "invisible", // 'invisible' or 'normal' for visible
-                callback: (response: any) => {
-                    console.log("reCAPTCHA solved", response);
+                size: "invisible",
+                callback: (response: string) => {
+                    console.log("reCAPTCHA solved:", response);
                 },
-            },
-            auth
+            }
         );
     }
-    return (window as any).recaptchaVerifier;
+    return window.recaptchaVerifier;
 };
 
-// 🔑 Send OTP to phone number
-export const sendOtp = async (phoneNumber: string, containerId: string) => {
+// export const sendOtp = async (phoneNumber: string) => {
+//     const appVerifier = setupRecaptcha("recaptcha-container");
+//     return await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+// };
+
+
+
+// 🔑 Send OTP
+export const sendOtp = async (
+    phoneNumber: string,
+    containerId: string
+): Promise<ConfirmationResult> => {
     const recaptchaVerifier = setupRecaptcha(containerId);
     try {
         const confirmationResult = await signInWithPhoneNumber(
@@ -34,7 +51,6 @@ export const sendOtp = async (phoneNumber: string, containerId: string) => {
             phoneNumber,
             recaptchaVerifier
         );
-        // Return confirmation result to use for OTP verification
         return confirmationResult;
     } catch (error) {
         console.error("Error sending OTP:", error);
@@ -42,11 +58,13 @@ export const sendOtp = async (phoneNumber: string, containerId: string) => {
     }
 };
 
-// 🔑 Verify OTP code
-export const verifyOtp = async (confirmationResult: any, otp: string) => {
+// 🔑 Verify OTP
+export const verifyOtp = async (
+    confirmationResult: ConfirmationResult,
+    otp: string
+) => {
     try {
         const result = await confirmationResult.confirm(otp);
-        // Return the logged-in user
         return result.user;
     } catch (error) {
         console.error("Error verifying OTP:", error);

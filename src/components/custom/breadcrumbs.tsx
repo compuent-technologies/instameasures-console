@@ -29,7 +29,7 @@ export function DynamicBreadcrumb() {
                 </span>
               ) : (
                 <>
-                  <Link href={href}>
+                  <Link to={href}>
                     <Button
                       size="sm"
                       variant="link"

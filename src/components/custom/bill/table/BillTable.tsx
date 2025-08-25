@@ -1,47 +1,50 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import {
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-
+import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import PageWrapper from "@/components/custom/wrapper/page-wrapper";
-
-
 import { fetchBills } from "@/store/slices/bill-slice";
-import { useAppSelector } from "@/store/hook";
-import { useAppDispatch } from "@/store";
+import { useAppSelector, useAppDispatch } from "@/store/hook";
 import { billTableColumns } from "./bill-column";
-import type { Bill } from "@/types/types";
+import type { Bill } from "@/types";
 import CommonTableComponent from "../../common/table/common-table-component";
+import { CommonPagination } from "../../common/table/common-pagination";
 
 export default function BillTable() {
   const dispatch = useAppDispatch();
-
-  // Local state for search
   const [search, setSearch] = useState("");
 
-  // Redux state
-  const { data: billsData, error } = useAppSelector(
+  const { data, total, page, pageSize, isLoading, error } = useAppSelector(
     (state) => state.bills
   );
 
-  // Fetch bills on mount
+  // Fetch bills whenever page, pageSize, or search changes
   useEffect(() => {
-    dispatch(fetchBills());
-  }, []);
+    dispatch(
+      fetchBills({
+        page,
+        limit: pageSize,
+        searchField: "apartmentId",
+        searchValue: search,
+      })
+    );
+  }, [dispatch, page, pageSize, search]);
 
-  // Search filter
-  const filteredBills = (billsData ?? []).filter((bill) =>
-    bill.apartmentId?.toLowerCase().includes(search.toLowerCase())
-  );
-
-  // Action handlers
-  const handleAdd = () => {
-    console.log("Add new bill clicked");
-  };
+  const table = useReactTable<Bill>({
+    data: data || [],
+    columns: billTableColumns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   const handleRefresh = () => {
-    dispatch(fetchBills());
+    dispatch(
+      fetchBills({
+        page,
+        limit: pageSize,
+        searchField: "apartmentId",
+        searchValue: search,
+      })
+    );
   };
 
   const handleExport = () => {
@@ -56,15 +59,6 @@ export default function BillTable() {
     console.log("Filter clicked");
   };
 
-  // Table columns
-  const columns = billTableColumns;
-
-  const table = useReactTable<Bill>({
-    data: filteredBills,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
   return (
     <PageWrapper
       title="Bills"
@@ -72,15 +66,36 @@ export default function BillTable() {
       addTitle="New Bill"
       search={search}
       onSearchChange={setSearch}
-      onAddClick={handleAdd}
       onRefresh={handleRefresh}
       onExport={handleExport}
       onSortToggle={handleSort}
       onFilterClick={handleFilter}
-      // loading={loading}
+      loading={isLoading}
       error={error}
     >
-      <CommonTableComponent table={table} columns={columns} />
+      {!isLoading ? (
+        <div>
+          <CommonTableComponent table={table} columns={billTableColumns} isLoading={isLoading} />
+          <CommonPagination
+            page={page}
+            totalPages={Math.ceil(total / pageSize)}
+            onPageChange={(newPage) =>
+              dispatch(
+                fetchBills({
+                  page: newPage,
+                  limit: pageSize,
+                  searchField: "apartmentId",
+                  searchValue: search,
+                })
+              )
+            }
+          />
+        </div>
+      ) : (
+        <div className="p-4 text-center text-muted-foreground">
+          Loading bills...
+        </div>
+      )}
     </PageWrapper>
   );
 }

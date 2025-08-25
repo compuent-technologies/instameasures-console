@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // firebase/firestore/ticket.ts
 import {
     collection,
@@ -15,8 +16,9 @@ import {
     QueryConstraint,
 } from "firebase/firestore";
 import { db } from "../index";
+import { COLLECTION_NAME } from "@/constants/COLLECTION_NAMES";
 
-const ticketRef = collection(db, "ticket");
+const ticketRef = collection(db, COLLECTION_NAME.TICKETS);
 
 export const addTicket = async (data: any) => {
     const docRef = await addDoc(ticketRef, data);

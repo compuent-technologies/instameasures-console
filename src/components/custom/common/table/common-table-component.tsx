@@ -49,15 +49,13 @@ const CommonTableComponent = ({ table, columns }: any) => {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                       </TableHead>
                     );
                   })}
-                <TableHead className="px-4 py-2 text-right font-semibold text-sm">
-                  Actions
-                </TableHead>
+
               </TableRow>
             ))}
           </TableHeader>
@@ -77,25 +75,24 @@ const CommonTableComponent = ({ table, columns }: any) => {
                       return (
                         <TableCell
                           key={cell.id}
-                          className={`px-4 py-2 text-sm ${
-                            isIndex ? "text-center font-medium" : "text-left"
-                          }`}
+                          className={`px-4 py-2 text-sm ${isIndex ? "text-center font-medium" : "text-left"
+                            }`}
                         >
                           {isIndex
                             ? flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext(),
+                            )
+                            : truncate(
+                              flexRender(
                                 cell.column.columnDef.cell,
                                 cell.getContext(),
-                              )
-                            : truncate(
-                                flexRender(
-                                  cell.column.columnDef.cell,
-                                  cell.getContext(),
-                                ),
-                              )}
+                              ),
+                            )}
                         </TableCell>
                       );
                     })}
-            
+
                 </TableRow>
               ))
             ) : (

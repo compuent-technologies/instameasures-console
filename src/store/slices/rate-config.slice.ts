@@ -1,14 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
 import * as rateConfigService from "@/firebase/firestore/rateConfig";
+import type RateConfigType from "@/types/rateConfig";
 
-export interface RateConfigType {
-    id: string;
-    name?: string;
-    value?: number;
-    createdAt?: number;
-    updatedAt?: number;
-}
+
 
 interface RateConfigState {
     data: RateConfigType[];
@@ -164,7 +159,7 @@ const rateConfigSlice = createSlice({
             })
             .addCase(updateRateConfig.fulfilled, (state, action) => {
                 state.loading = false;
-                const index = state.data.findIndex((r) => r.id === action.payload.id);
+                const index = state.data.findIndex((r: { id: any; }) => r.id === action.payload.id);
                 if (index !== -1) state.data[index] = { ...state.data[index], ...action.payload };
             })
             .addCase(updateRateConfig.rejected, (state, action) => {
@@ -178,7 +173,7 @@ const rateConfigSlice = createSlice({
             })
             .addCase(deleteRateConfig.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = state.data.filter((r) => r.id !== action.payload);
+                state.data = state.data.filter((r: { id: string; }) => r.id !== action.payload);
                 state.total -= 1;
             })
             .addCase(deleteRateConfig.rejected, (state, action) => {

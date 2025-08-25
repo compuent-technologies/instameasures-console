@@ -1,6 +1,17 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { UserType } from "@/types/user";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { MoreHorizontal } from "lucide-react";
+
 
 export const userColumns: ColumnDef<UserType>[] = [
   {
@@ -67,4 +78,41 @@ export const userColumns: ColumnDef<UserType>[] = [
       </div>
     ),
   },
+  {
+    id: "action",
+    header: "Action",
+    cell: ({ row }) => (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => console.log("View", row.original)}
+          >
+            View
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => console.log("Edit", row.original)}
+          >
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="text-red-600"
+            onClick={() => console.log("Delete", row.original)}
+          >
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    ),
+  },
 ];
+
+
+

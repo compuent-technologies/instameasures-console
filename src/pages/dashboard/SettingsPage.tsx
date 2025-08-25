@@ -1,4 +1,4 @@
-import React from "react";
+
 import {
   Card,
   CardContent,
@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Settings, User, Bell, Shield } from "lucide-react";
+import { User, Bell, Shield } from "lucide-react";
 
 export default function SettingsPage() {
   return (

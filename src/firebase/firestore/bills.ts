@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // firebase/firestore/bills.ts
 import {
     collection,
@@ -13,8 +14,10 @@ import {
     type DocumentData,
 } from "firebase/firestore";
 import { db } from "../index";
+import { COLLECTION_NAME } from "@/constants/COLLECTION_NAMES";
+import type { Bill } from "@/types";
 
-const billsRef = collection(db, "bills");
+const billsRef = collection(db, COLLECTION_NAME.BILLS);
 
 // ✅ Add a new bill
 export const addBill = async (data: any) => {
@@ -39,7 +42,7 @@ export const deleteBill = async (id: string) => {
 };
 
 /* -------------------- List bills with pagination, search, sort & filter -------------------- */
-interface ListBillsParams {
+export default interface ListBillsParams {
     page?: number;
     limit?: number;
     sortField?: string;
@@ -60,11 +63,13 @@ export const listBills = async ({
     filterField,
     filterValue,
 }: ListBillsParams) => {
-    let q: any = query(billsRef, orderBy(sortField, sortOrder));
+    const q: any = query(billsRef, orderBy(sortField, sortOrder));
 
     // Firestore doesn't support offset, so fetch all and then slice
     const snapshot = await getDocs(q);
-    let allDocs: DocumentData[] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+    let allDocs: DocumentData[] = snapshot.docs.map((d) => ({
+        ...(d.data() as Bill),
+    }));
 
     // Apply search
     if (searchField && searchValue) {

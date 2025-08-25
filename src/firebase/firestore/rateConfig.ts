@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // firebase/firestore/rateConfig.ts
 import {
     collection,
@@ -15,8 +16,9 @@ import {
     QueryConstraint,
 } from "firebase/firestore";
 import { db } from "../index";
+import { COLLECTION_NAME } from "@/constants/COLLECTION_NAMES";
 
-const rateConfigRef = collection(db, "rateConfig");
+const rateConfigRef = collection(db, COLLECTION_NAME.CONFIG_RATES);
 
 export const addRateConfig = async (data: any) => {
     const docRef = await addDoc(rateConfigRef, data);

@@ -4,6 +4,7 @@ import * as authService from "@/firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebase/index"; // Firestore instance
 import type { User } from "firebase/auth";
+import type { RootState } from "..";
 
 // Utility to serialize Firebase User
 function serializeUser(user: User | null) {
@@ -61,11 +62,17 @@ export const sendOtpWithRoleCheck = createAsyncThunk<
 });
 
 // ✅ Verify OTP thunk
-export const verifyOtp = createAsyncThunk<{ user: SerializableUser }, { otp: string }, { state: AuthState; rejectValue: string }>(
+export const verifyOtp = createAsyncThunk<
+  { user: SerializableUser },
+  { otp: string },
+  { state: RootState; rejectValue: string }
+>(
   "auth/verifyOtp",
   async ({ otp }, thunkAPI) => {
-    const { confirmationResult } = thunkAPI.getState();
+    const { confirmationResult } = (thunkAPI.getState() as RootState).auth;
+
     if (!confirmationResult) return thunkAPI.rejectWithValue("No OTP confirmation available");
+
     try {
       const user = await authService.verifyOtp(confirmationResult, otp);
       return { user: serializeUser(user) };

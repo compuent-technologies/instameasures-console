@@ -5,16 +5,23 @@ import {
 } from "react-router-dom";
 
 import DashboardOverview from "./pages/dashboard/DashboardOverview";
-import UsersPage from "./pages/dashboard/UsersPage";
-import ApartmentsPage from "./pages/dashboard/ApartmentsPage";
-import BillsPage from "./pages/dashboard/BillsPage";
-import MetersPage from "./pages/dashboard/MetersPage";
 import SettingsPage from "./pages/dashboard/SettingsPage";
 import LoginWrapper from "./components/custom/wrapper/login.wrapper";
-// import AuthWrapper from "./components/custom/wrapper/auth.wrapper";
-import DashboardLayout from "./layout/dashboard-layout";
+import DashboardLayout from "./layout/DashboardLayout";
 import OtpVerificationPage from "./pages/auth/OtpVerificationPage";
 import PhoneNumberLoginPage from "./pages/auth/PhoneNumberLoginPage";
+import TicketsPage from "./pages/dashboard/TicketsPage";
+import NotificationsPage from "./pages/dashboard/NotificationsPage";
+import PaymentsPage from "./pages/dashboard/PaymentsPage";
+import ClientsPage from "./pages/dashboard/ClientsPage";
+import SuperAdminsTable from "./components/custom/user/table/SuperAdminsTable";
+import ApartmentLayout from "./layout/ApartmentLayout";
+import ApartmentDetailPage from "./pages/dashboard/aparments/ApartmentDetailPage";
+import ApartmentMetersPage from "./pages/dashboard/aparments/ApartmentMetersPage";
+import ApartmentUsersPage from "./pages/dashboard/aparments/ApartmentUsersPage";
+import ApartmentRateConfig from "./pages/dashboard/aparments/ApartmentRateConfig";
+import ROUTES from "./constants/ROUTES";
+import ApartmentsPage from "./pages/dashboard/aparments";
 
 // Protected dashboard routes
 const dashboardRoutes = (
@@ -29,7 +36,7 @@ const dashboardRoutes = (
 export const router = createBrowserRouter([
     // Public routes
     {
-        path: "/login",
+        path: ROUTES.LOGIN,
         element: (
             <LoginWrapper>
                 <PhoneNumberLoginPage />
@@ -37,7 +44,7 @@ export const router = createBrowserRouter([
         ),
     },
     {
-        path: "/verification",
+        path: ROUTES.VERIFICATION,
         element: (
             <LoginWrapper>
                 <OtpVerificationPage />
@@ -47,47 +54,26 @@ export const router = createBrowserRouter([
 
     // Protected dashboard routes
     {
-        path: "/dashboard",
+        path: ROUTES.DASHBOARD.OVERVIEW,
         element: dashboardRoutes,
         children: [
             { path: "", element: <DashboardOverview /> },
-            { path: "users", element: <UsersPage /> },
-            { path: "apartments", element: <ApartmentsPage /> },
-            { path: "bills", element: <BillsPage /> },
-            { path: "meters", element: <MetersPage /> },
-            { path: "settings", element: <SettingsPage /> },
+            { path: ROUTES.DASHBOARD.CLIENTS, element: <ClientsPage /> },
+            { path: ROUTES.DASHBOARD.SUPERADMINS, element: <SuperAdminsTable /> },
+            { path: ROUTES.DASHBOARD.APARTMENTS, element: <ApartmentsPage /> },
+            { path: ROUTES.DASHBOARD.TICKETS, element: <TicketsPage /> },
+            { path: ROUTES.DASHBOARD.PAYMENTS, element: <PaymentsPage /> },
+            { path: ROUTES.DASHBOARD.NOTIFICATIONS, element: <NotificationsPage /> },
+            { path: ROUTES.DASHBOARD.SETTINGS, element: <SettingsPage /> },
             {
-                path: "feedback",
-                element: (
-                    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6" >
-                        <h2 className="text-3xl font-bold tracking-tight"> Feedback </h2>
-                        < p className="text-center text-muted-foreground py-12" >
-                            Feedback page coming soon...
-                        </p>
-                    </div>
-                ),
-            },
-            {
-                path: "developer",
-                element: (
-                    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6" >
-                        <h2 className="text-3xl font-bold tracking-tight" > Developer </h2>
-                        < p className="text-center text-muted-foreground py-12" >
-                            Developer tools coming soon...
-                        </p>
-                    </div>
-                ),
-            },
-            {
-                path: "profile",
-                element: (
-                    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6" >
-                        <h2 className="text-3xl font-bold tracking-tight" > Profile </h2>
-                        < p className="text-center text-muted-foreground py-12" >
-                            Profile page coming soon...
-                        </p>
-                    </div>
-                ),
+                path: ROUTES.DASHBOARD.APARTMENT_DETAIL,
+                element: <ApartmentLayout />,
+                children: [
+                    { path: "", element: <ApartmentDetailPage /> },
+                    { path: "meters", element: <ApartmentMetersPage /> },
+                    { path: "users", element: <ApartmentUsersPage /> },
+                    { path: "rate-config", element: <ApartmentRateConfig /> },
+                ]
             },
         ],
     },

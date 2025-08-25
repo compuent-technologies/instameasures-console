@@ -1,15 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
 import * as ticketService from "@/firebase/firestore/tickets";
-
-export interface TicketType {
-    id: string;
-    title?: string;
-    description?: string;
-    status?: string;
-    createdAt?: number;
-    updatedAt?: number;
-}
+import type { TicketType } from "@/types/ticket";
 
 interface TicketState {
     data: TicketType[];

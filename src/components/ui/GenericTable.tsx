@@ -1,9 +1,9 @@
-import * as React from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
-  ColumnDef,
+  type ColumnDef,
 } from "@tanstack/react-table";
 import {
   Table,

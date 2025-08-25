@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Plus,
+  // Plus,
   Search,
   RefreshCcw,
   Download,
@@ -20,7 +20,7 @@ interface PageWrapperProps {
   addTitle?: string;
   search?: string;
   onSearchChange?: (value: string) => void;
-  onAddClick?: () => void;
+  onAddClick?: ReactNode;
   onRefresh?: () => void;
   onExport?: () => void;
   onSortToggle?: () => void;
@@ -33,7 +33,7 @@ interface PageWrapperProps {
 export default function PageWrapper({
   title,
   subTitle,
-  addTitle,
+  // addTitle,
   search,
   onSearchChange,
   onAddClick,
@@ -84,10 +84,11 @@ export default function PageWrapper({
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button onClick={onAddClick}>
+          {/* <Button onClick={onAddClick}>
             <Plus className="mr-2 h-4 w-4" />
             {addTitle ?? "Add New"}
-          </Button>
+          </Button> */}
+          {onAddClick && (onAddClick)}
         </div>
       </div>
 

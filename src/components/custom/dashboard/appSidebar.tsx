@@ -1,21 +1,19 @@
 import * as React from "react";
 import {
+  Bell,
   Building,
-  Calculator,
-  Frame,
+  CreditCard,
   HomeIcon,
-  Map,
-  ParkingMeter,
-  PieChart,
-  SquaresExcludeIcon,
   TicketIcon,
-  UserSquare2Icon,
+  User2,
+  Users2,
 } from "lucide-react";
 
 import { NavMain } from "./nav-main";
-import { NavProjects } from "./nav-projects";
-import { NavUser } from "./nav-user";
+// import { NavProjects } from "./nav-projects";
+// import { NavUser } from "./nav-user";
 import { TeamSwitcher } from "./team-switcher";
+// import logo from '@/assets/react.svg'
 import {
   Sidebar,
   SidebarContent,
@@ -23,7 +21,8 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import ROUTES from "@/constants/route-constants";
+import ROUTES from "@/constants/ROUTES";
+import applogo from "@/assets/logo.png";
 
 // This is sample data.
 const data = {
@@ -35,8 +34,9 @@ const data = {
   teams: [
     {
       name: "Instameasure",
-      logo: SquaresExcludeIcon,
-      plan: "BridgeTech Innovvation llp",
+      url: applogo,
+
+      plan: "BridgeTech Innovations llp",
     },
   ],
   dashboard: [
@@ -44,75 +44,56 @@ const data = {
       title: "Overview",
       url: ROUTES.DASHBOARD.OVERVIEW,
       icon: HomeIcon,
-      isActive: true,
+      isActive: false,
     },
   ],
   navMain: [
     {
+      title: "SuperAdmins",
+      url: ROUTES.DASHBOARD.SUPERADMINS,
+      icon: User2,
+    },
+    {
       title: "Apartments",
-      url: ROUTES.DASHBOARD.APARTMENT,
+      url: ROUTES.DASHBOARD.APARTMENTS,
       icon: Building,
       isActive: true,
     },
-
     {
-      title: "Users",
-      url: ROUTES.DASHBOARD.USERS,
-      icon: UserSquare2Icon,
-    },
-    {
-      title: "Meters",
-      url: ROUTES.DASHBOARD.METERS,
-      icon: ParkingMeter,
-    },
-    {
-      title: "Bills",
-      url: ROUTES.DASHBOARD.BILLS,
-      icon: Calculator,
+      title: "Clients",
+      url: ROUTES.DASHBOARD.CLIENTS,
+      icon: Users2,
     },
     {
       title: "Tickets",
       url: ROUTES.DASHBOARD.TICKETS,
       icon: TicketIcon,
     },
-  ],
-  projects: [
     {
-      name: "Logs",
-      url: ROUTES.DASHBOARD.LOGS,
-      icon: Frame,
+      title: "Notifications",
+      url: ROUTES.DASHBOARD.NOTIFICATIONS,
+      icon: Bell,
     },
     {
-      name: "Settings",
-      url: ROUTES.DASHBOARD.SETTINGS,
-      icon: PieChart,
-    },
-    {
-      name: "Feedback",
-      url: ROUTES.DASHBOARD.FEEDBACK,
-      icon: Map,
-    },
-    {
-      name: "Developer",
-      url: ROUTES.DASHBOARD.DEVELOPER,
-      icon: Map,
+      title: "Payments",
+      url: ROUTES.DASHBOARD.PAYMENTS,
+      icon: CreditCard,
     },
   ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" variant="sidebar" {...props}>
+    <Sidebar collapsible="icon" variant='inset' {...props}>
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.dashboard} title="Overview" />
         <NavMain items={data.navMain} title="Menus" />
-        <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        {/* <NavUser user={data.user} /> */}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

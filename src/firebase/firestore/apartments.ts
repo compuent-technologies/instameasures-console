@@ -5,40 +5,43 @@ import {
     setDoc,
     addDoc,
     getDoc,
-    getDocs,
     updateDoc,
     deleteDoc,
     query,
     orderBy,
-    where,
-    limit as limitQuery,
     startAfter,
-    DocumentData,
-    QueryDocumentSnapshot,
+    limit as fbLimit,
+    getDocs,
+    type DocumentData,
+    type QueryDocumentSnapshot,
+    where,
 } from "firebase/firestore";
 import { db } from "../index";
+import { COLLECTION_NAME } from "@/constants/COLLECTION_NAMES";
+import type { ApartmentType } from "@/types/apartment";
 
-const apartmentsRef = collection(db, "apartments");
+const apartmentsRef = collection(db, COLLECTION_NAME.APARTMENTS);
+
 
 // ✅ Create a new apartment (auto ID)
-export const createApartment = async (data: any) => {
+export const createApartment = async (data: ApartmentType) => {
     const docRef = await addDoc(apartmentsRef, data);
     return docRef.id;
 };
 
 // ✅ Create or update apartment by ID
-export const setApartment = async (id: string, data: any) => {
+export const setApartment = async (id: string, data: ApartmentType) => {
     await setDoc(doc(apartmentsRef, id), data, { merge: true });
 };
 
 // ✅ Get single apartment
-export const getApartment = async (id: string) => {
+export const getApartment = async (id: string): Promise<ApartmentType | null> => {
     const snap = await getDoc(doc(apartmentsRef, id));
-    return snap.exists() ? snap.data() : null;
+    return snap.exists() ? ({ id: snap.id, ...snap.data() } as ApartmentType) : null;
 };
 
 // ✅ Update apartment by ID
-export const updateApartment = async (id: string, data: any) => {
+export const updateApartment = async (id: string, data: Partial<ApartmentType>) => {
     await updateDoc(doc(apartmentsRef, id), data);
 };
 
@@ -48,47 +51,50 @@ export const deleteApartment = async (id: string) => {
 };
 
 /* -------------------- Get apartments with pagination, search, and sort -------------------- */
-interface ListApartmentsParams {
+export interface ListApartmentsParams {
     page?: number;
     limit?: number;
     sortField?: string;
     sortOrder?: "asc" | "desc";
     searchField?: string;
     searchValue?: string;
+    lastDoc?: QueryDocumentSnapshot<DocumentData>; // for real pagination
 }
 
 export const listApartments = async ({
-    page = 1,
     limit = 10,
     sortField = "name",
     sortOrder = "asc",
     searchField,
     searchValue,
+    lastDoc,
 }: ListApartmentsParams) => {
-    let q: any = query(apartmentsRef, orderBy(sortField, sortOrder));
+    let q = query(apartmentsRef, orderBy(sortField, sortOrder), fbLimit(limit));
 
-    // Firestore doesn't have offset, we need to paginate using startAfter
-    // For simplicity, we'll fetch `page * limit` and then slice client-side
-    const snapshot = await getDocs(q);
-    let allDocs: DocumentData[] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-
-    // Apply search filtering if needed
+    // ✅ Server-side search if exact match is possible
     if (searchField && searchValue) {
-        const lowerSearch = searchValue.toLowerCase();
-        allDocs = allDocs.filter((d) =>
-            String(d[searchField]).toLowerCase().includes(lowerSearch)
+        q = query(
+            apartmentsRef,
+            where(searchField, "==", searchValue),
+            orderBy(sortField, sortOrder),
+            fbLimit(limit)
         );
     }
 
-    const total = allDocs.length;
-    const start = (page - 1) * limit;
-    const end = start + limit;
-    const pagedDocs = allDocs.slice(start, end);
+    // ✅ Pagination using startAfter
+    if (lastDoc) {
+        q = query(q, startAfter(lastDoc));
+    }
+
+    const snapshot = await getDocs(q);
+    const docs: ApartmentType[] = snapshot.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+    })) as ApartmentType[];
 
     return {
-        apartments: pagedDocs,
-        total,
-        page,
-        pageSize: limit,
+        apartments: docs,
+        lastDoc: snapshot.docs[snapshot.docs.length - 1] ?? null,
+        hasMore: snapshot.size === limit,
     };
 };

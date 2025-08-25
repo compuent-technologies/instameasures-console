@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useAppDispatch, useAppSelector } from "@/store/hook";
 import { sendOtpWithRoleCheck } from "@/store/slices/auth-slice";
+import ROUTES from "@/constants/ROUTES";
 
 export default function PhoneNumberLoginPage() {
   const navigate = useNavigate();
@@ -36,16 +37,18 @@ export default function PhoneNumberLoginPage() {
       );
 
       if (sendOtpWithRoleCheck.fulfilled.match(result)) {
-        // navigate to OTP verification page
-        navigate("/verify-otp");
+        navigate(ROUTES.VERIFICATION);
       }
     } catch (err) {
-      console.error(err);
+      console.error("OTP error:", err);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+      {/* 🔑 reCAPTCHA container (only once!) */}
+      <div id="recaptcha-container"></div>
+
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white">
@@ -72,7 +75,7 @@ export default function PhoneNumberLoginPage() {
                   name="phone"
                   type="tel"
                   required
-                  placeholder="+91 9876543210"
+                  placeholder="+919876543210"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   disabled={loading}
@@ -80,7 +83,9 @@ export default function PhoneNumberLoginPage() {
               </div>
 
               {error && (
-                <p className="text-sm text-red-500 text-center">{error}</p>
+                <p className="text-sm text-red-500 text-center">
+                  {typeof error === "string" ? error : "Login failed"}
+                </p>
               )}
 
               <Button type="submit" className="w-full" disabled={loading}>
@@ -99,15 +104,12 @@ export default function PhoneNumberLoginPage() {
 
             <div className="text-center">
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Don't have access?{" "}
+                Don&apos;t have access?{" "}
                 <Button variant="link" className="p-0 h-auto">
                   Contact administrator
                 </Button>
               </p>
             </div>
-
-            {/* Invisible reCAPTCHA container */}
-            <div id="recaptcha-container"></div>
           </CardContent>
         </Card>
       </div>
